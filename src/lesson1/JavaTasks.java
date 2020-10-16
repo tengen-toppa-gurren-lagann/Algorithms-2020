@@ -2,6 +2,14 @@ package lesson1;
 
 import kotlin.NotImplementedError;
 
+import java.io.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
 @SuppressWarnings("unused")
 public class JavaTasks {
     /**
@@ -34,9 +42,51 @@ public class JavaTasks {
      *
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
-    static public void sortTimes(String inputName, String outputName) {
-        throw new NotImplementedError();
-    }
+    static public void sortTimes(String inputName, String outputName) throws IOException, ParseException {
+        FileReader read = new FileReader(inputName);
+        BufferedReader buffer = new BufferedReader(read);
+        List<String> list = new ArrayList<>();
+        List<Long> datesList = new ArrayList<>();
+        String str = buffer.readLine();
+        while (str != null) {
+            if (!(str.matches("([0][1-9]|[1][0-2]):[0-5][0-9]:[0-5][0-9]\\s(PM|AM)"))) {
+                throw new IllegalArgumentException();
+            }
+            else list.add(str);
+            str = buffer.readLine();
+        }
+        for (String s : list) {
+            datesList.add( new SimpleDateFormat("hh:mm:ss a").parse(s).getTime());
+        }
+        // Сортировка вставкой
+        for (int left = 0; left < datesList.size(); left++) {
+            // Вытаскиваем значение элемента
+            Long value = datesList.get(left);
+            String line = list.get(left);
+            // Перемещаемся по элементам, которые перед вытащенным элементом
+            int i = left - 1;
+            for (; i >= 0; i--) {
+                // Если вытащили значение меньшее — передвигаем больший элемент дальше
+                if (value < datesList.get(i)) {
+                    datesList.set(i + 1, datesList.get(i));
+                    list.set(i + 1, list.get(i));
+                } else {
+                    // Если вытащенный элемент больше — останавливаемся
+                    break;
+                }
+            }
+            // В освободившееся место вставляем вытащенное значение
+            datesList.set(i + 1, value);
+            list.set(i + 1, line);
+        }
+        FileWriter fileWriter = new FileWriter(outputName);
+        BufferedWriter writer = new BufferedWriter(fileWriter);
+        for (String s : list) {
+            writer.write(s);
+            writer.newLine();
+        }
+        writer.close();
+    } // Трудоёмкость O(N^2), Ресурсоёмкость O(2N).
 
     /**
      * Сортировка адресов
@@ -98,9 +148,38 @@ public class JavaTasks {
      * 99.5
      * 121.3
      */
-    static public void sortTemperatures(String inputName, String outputName) {
-        throw new NotImplementedError();
-    }
+    static public void sortTemperatures(String inputName, String outputName) throws IOException {
+        // Так как число элементов может быть огромным, а диапазон значений ограничен, применим сортировку подсчётом
+        final double min = -273.0;
+        final double max = 500.0;
+        final int grade = 10;
+        final int size = (int)((max - min) * grade) + 1;
+        final int offset = size - (int)(max * grade) - 1;
+        int[] count = new int[size];
+        FileReader read = new FileReader(inputName);
+        BufferedReader buffer = new BufferedReader(read);
+        String str = buffer.readLine();
+        while (str != null) {
+            double temp = Double.parseDouble(str);
+            if (temp > max || temp < min) {
+                throw new IllegalArgumentException();
+            }
+            count[(int)(temp*grade) + offset]++;
+            str = buffer.readLine();
+        }
+        FileWriter fileWriter = new FileWriter(outputName);
+        BufferedWriter writer = new BufferedWriter(fileWriter);
+        double number;
+        for(int i = 0; i < count.length; i++) {
+                number = ((double)(i - offset)) / grade;
+                String s = String.valueOf(number);
+                for (int j = 0; j < count[i]; j++) {
+                    writer.write(s);
+                    writer.newLine();
+            }
+        }
+        writer.close();
+    } // Трудоёмкость O(N), Ресурсоёмкость O(1).
 
     /**
      * Сортировка последовательности
@@ -131,8 +210,75 @@ public class JavaTasks {
      * 2
      * 2
      */
-    static public void sortSequence(String inputName, String outputName) {
-        throw new NotImplementedError();
+    static public void sortSequence(String inputName, String outputName) throws IOException {
+        // Сортировка слиянием
+        FileReader read = new FileReader(inputName);
+        BufferedReader buffer = new BufferedReader(read);
+        String str = buffer.readLine();
+        List<Integer> in = new ArrayList<>();
+        while (str != null) {
+            int i = Integer.parseInt(str);
+            if (i <= 0) throw new IllegalArgumentException();
+            in.add(i);
+            str = buffer.readLine();
+        }
+        Integer[] worked = new Integer[in.size()];
+        for (int i = 0; i < in.size(); i++) {
+            worked[i] = in.get(i);
+        }
+        mergeSort(worked);
+        int bestN = Integer.MAX_VALUE;
+        int bCount = 0;
+        int thisN = Integer.MAX_VALUE;
+        int tCount = 0;
+        for (int value : worked) {
+            if (thisN != value) {
+                tCount = 1;
+                thisN = value;
+            } else {
+                tCount++;
+            }
+            if (tCount > bCount) {
+                bestN = thisN;
+                bCount = tCount;
+            } else {
+                if (tCount == bCount && thisN < bestN) {
+                    bestN = thisN;
+                }
+            }
+        }
+        FileWriter fileWriter = new FileWriter(outputName);
+        BufferedWriter writer = new BufferedWriter(fileWriter);
+        for (Integer integer : in) {
+            if (integer != bestN) {
+                writer.write("" + integer);
+                writer.newLine();
+            }
+        }
+        for (int j = 0; j < bCount; j++) {
+            writer.write("" + bestN);
+            writer.newLine();
+        }
+        writer.close();
+    } // Трудоёмкость O(N logN), Ресурсоёмкость O(2N).
+
+    private static void mergeSort(Integer[] elements) {
+        if (elements == null) return;
+        if (elements.length < 2) return; // возврат из рекурсии если в массиве один элемент
+        int middle = elements.length / 2;
+        // Копируем левую часть массива (от начала до середины)
+        Integer[] a1 = Arrays.copyOfRange(elements, 0, elements.length / 2);
+        // Копируем правую часть массива (от середины до конца)
+        Integer[] a2 = Arrays.copyOfRange(elements, elements.length / 2, elements.length);
+        // Рекурсивно вызываем сортировку для поделенных массивов
+        mergeSort(a1);
+        mergeSort(a2);
+        // Соединяем два отсортированных массива в один
+        Integer[] aResult = new Integer[a1.length+a2.length];
+        System.arraycopy(a2, 0, aResult, a1.length, a2.length);
+        mergeArrays(a1, aResult); // Используем функцию слияния массивов из последней задачи
+//        elements = aResult; // Так не работает!!!
+        System.arraycopy(aResult, 0, elements, 0, aResult.length);
     }
 
     /**
@@ -150,6 +296,24 @@ public class JavaTasks {
      * Результат: second = [1 3 4 9 9 13 15 20 23 28]
      */
     static <T extends Comparable<T>> void mergeArrays(T[] first, T[] second) {
-        throw new NotImplementedError();
-    }
+        if (first.length > second.length) {
+            throw new IllegalArgumentException();
+        }
+        int i = 0;
+        int j = first.length;
+        int currIndex = 0;
+        while (i < first.length && j < second.length) {
+            if (first[i].compareTo(second[j]) < 0) {
+                second[currIndex++] = first[i++];
+            } else {
+                second[currIndex++] = second[j++];
+            }
+        }
+        while (i < first.length) {
+            second[currIndex++] = first[i++];
+        }
+        while (j < second.length) {
+            second[currIndex++] = second[j++];
+        }
+    } // Трудоёмкость O(N*M), Ресурсоёмкость O(1).
 }

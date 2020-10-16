@@ -1,10 +1,12 @@
 package lesson1
 
 import org.junit.jupiter.api.Assertions.assertArrayEquals
+import org.junit.jupiter.api.assertThrows
 import util.PerfResult
 import util.estimate
 import java.io.BufferedWriter
 import java.io.File
+import java.lang.IndexOutOfBoundsException
 import java.util.*
 import kotlin.math.abs
 import kotlin.system.measureNanoTime
@@ -42,6 +44,23 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         try {
             sortTimes("input/time_in3.txt", "temp.txt")
             assertFileContent("temp.txt", File("input/time_out3.txt").readLines())
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {
+            sortTimes("input/time_in4.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                    12:00:00 AM
+                    12:00:00 PM
+                """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {
+            assertThrows<IllegalArgumentException> { sortTimes("input/time_err.txt", "temp.txt") }
         } finally {
             File("temp.txt").delete()
         }
@@ -115,6 +134,23 @@ abstract class AbstractTaskTests : AbstractFileTests() {
                     121.3
                 """.trimIndent()
             )
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {
+            sortTemperatures("input/temp_in2.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                    99.5
+                """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+
+        try {
+            assertThrows<IllegalArgumentException> { sortTemperatures("input/temp_err.txt", "temp.txt") }
         } finally {
             File("temp.txt").delete()
         }
@@ -277,6 +313,23 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         } finally {
             File("temp.txt").delete()
         }
+        try {
+            sortSequence("input/seq_in6.txt", "temp.txt")
+            assertFileContent(
+                "temp.txt",
+                """
+                        78
+                    """.trimIndent()
+            )
+        } finally {
+            File("temp.txt").delete()
+        }
+        try {
+            assertThrows<IllegalArgumentException> { sortSequence("input/seq_err.txt", "temp.txt") }
+        } finally {
+            File("temp.txt").delete()
+        }
+
 
         fun testGeneratedSequence(totalSize: Int, answerSize: Int): PerfResult<Unit> {
             try {
@@ -326,6 +379,10 @@ abstract class AbstractTaskTests : AbstractFileTests() {
         val result = arrayOf(null, null, null, null, null, 1, 3, 9, 13, 18, 23)
         mergeArrays(arrayOf(4, 9, 15, 20, 23), result)
         assertArrayEquals(arrayOf(1, 3, 4, 9, 9, 13, 15, 18, 20, 23, 23), result)
+        val result2 = arrayOfNulls<Int>(5)
+        mergeArrays(arrayOf(1, 2, 3, 4, 5), result2)
+        assertArrayEquals(arrayOf(1, 2, 3, 4, 5), result2)
+        assertThrows<IllegalArgumentException> { mergeArrays(arrayOf(1, 2, 3, 4, 5), arrayOf(null, 1)) }
 
         fun testGeneratedArrays(
             firstSize: Int,
