@@ -97,8 +97,25 @@ public class JavaAlgorithms {
      * Если имеется несколько самых длинных общих подстрок одной длины,
      * вернуть ту из них, которая встречается раньше в строке first.
      */
-    static public String longestCommonSubstring(String firs, String second) {
-        throw new NotImplementedError();
+    static public String longestCommonSubstring(String first, String second) {
+        if (first.length() == 0 || second.length() == 0) throw new IllegalArgumentException();
+        int[][] grid = new int[first.length()][second.length()];
+        int bestI = 0;
+        int best = 0;
+        for (int i = 0; i < first.length(); i++) {
+            for (int j = 0; j < second.length(); j++) {
+                if (first.charAt(i) == second.charAt(j)) {
+                    if (i == 0 || j == 0) grid[i][j] = 1;
+                    else grid[i][j] = grid[i - 1][j - 1] + 1;
+                    if (grid[i][j] > best) {
+                        bestI = i;
+                        best = grid[i][j];
+                    }
+                } else grid[i][j] = 0;
+            }
+        }
+        String s = first.substring(bestI - best + 1, bestI + 1);
+        return s;
     }
 
     /**
@@ -112,6 +129,23 @@ public class JavaAlgorithms {
      * Единица простым числом не считается.
      */
     static public int calcPrimesNumber(int limit) {
-        throw new NotImplementedError();
+        if (limit <= 1) return 0;
+        int[] list = new int[limit + 1];
+        list[0] = 1;
+        list[1] = 1;
+        for (int i = 2; i*i <= limit; i++) {
+            if (list[i] == 0) {
+                for (int j = i * i; j <= limit; j += i) {
+                    list[j] = 1;
+                }
+            }
+        }
+        int count = 0;
+        for (int i : list) {
+            if (i == 0) {
+                count++;
+            }
+        }
+        return count;
     }
 }

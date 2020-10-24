@@ -1,14 +1,12 @@
 package lesson1;
 
 import kotlin.NotImplementedError;
+import kotlin.Pair;
 
 import java.io.*;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @SuppressWarnings("unused")
 public class JavaTasks {
@@ -43,50 +41,27 @@ public class JavaTasks {
      * В случае обнаружения неверного формата файла бросить любое исключение.
      */
     static public void sortTimes(String inputName, String outputName) throws IOException, ParseException {
-        FileReader read = new FileReader(inputName);
-        BufferedReader buffer = new BufferedReader(read);
-        List<String> list = new ArrayList<>();
-        List<Long> datesList = new ArrayList<>();
-        String str = buffer.readLine();
-        while (str != null) {
-            if (!(str.matches("([0][1-9]|[1][0-2]):[0-5][0-9]:[0-5][0-9]\\s(PM|AM)"))) {
-                throw new IllegalArgumentException();
-            }
-            else list.add(str);
-            str = buffer.readLine();
-        }
-        for (String s : list) {
-            datesList.add( new SimpleDateFormat("hh:mm:ss a").parse(s).getTime());
-        }
-        // Сортировка вставкой
-        for (int left = 0; left < datesList.size(); left++) {
-            // Вытаскиваем значение элемента
-            Long value = datesList.get(left);
-            String line = list.get(left);
-            // Перемещаемся по элементам, которые перед вытащенным элементом
-            int i = left - 1;
-            for (; i >= 0; i--) {
-                // Если вытащили значение меньшее — передвигаем больший элемент дальше
-                if (value < datesList.get(i)) {
-                    datesList.set(i + 1, datesList.get(i));
-                    list.set(i + 1, list.get(i));
-                } else {
-                    // Если вытащенный элемент больше — останавливаемся
-                    break;
+        List<Pair<String, Long>> list = new ArrayList<>();
+        try (FileReader read = new FileReader(inputName);
+             BufferedReader buffer = new BufferedReader(read)) {
+            String str = buffer.readLine();
+            while (str != null) {
+                if (!(str.matches("([0][1-9]|[1][0-2]):[0-5][0-9]:[0-5][0-9]\\s(PM|AM)"))) {
+                    throw new IllegalArgumentException();
                 }
+                else list.add(new Pair<>(str, new SimpleDateFormat("hh:mm:ss a").parse(str).getTime()));
+                str = buffer.readLine();
             }
-            // В освободившееся место вставляем вытащенное значение
-            datesList.set(i + 1, value);
-            list.set(i + 1, line);
         }
-        FileWriter fileWriter = new FileWriter(outputName);
-        BufferedWriter writer = new BufferedWriter(fileWriter);
-        for (String s : list) {
-            writer.write(s);
-            writer.newLine();
+        list.sort((a, b) -> (int) (a.getSecond() - b.getSecond()));
+        try (FileWriter fileWriter = new FileWriter(outputName);
+             BufferedWriter writer = new BufferedWriter(fileWriter)) {
+            for (Pair p : list) {
+                writer.write(p.getFirst().toString());
+                writer.newLine();
+            }
         }
-        writer.close();
-    } // Трудоёмкость O(N^2), Ресурсоёмкость O(2N).
+    } // Трудоёмкость O(N logN), Ресурсоёмкость O(N).
 
     /**
      * Сортировка адресов
@@ -156,29 +131,30 @@ public class JavaTasks {
         final int size = (int)((max - min) * grade) + 1;
         final int offset = size - (int)(max * grade) - 1;
         int[] count = new int[size];
-        FileReader read = new FileReader(inputName);
-        BufferedReader buffer = new BufferedReader(read);
-        String str = buffer.readLine();
-        while (str != null) {
-            double temp = Double.parseDouble(str);
-            if (temp > max || temp < min) {
-                throw new IllegalArgumentException();
+        try (FileReader read = new FileReader(inputName);
+             BufferedReader buffer = new BufferedReader(read)) {
+            String str = buffer.readLine();
+            while (str != null) {
+                double temp = Double.parseDouble(str);
+                if (temp > max || temp < min) {
+                    throw new IllegalArgumentException();
+                }
+                count[(int) (temp * grade) + offset]++;
+                str = buffer.readLine();
             }
-            count[(int)(temp*grade) + offset]++;
-            str = buffer.readLine();
         }
-        FileWriter fileWriter = new FileWriter(outputName);
-        BufferedWriter writer = new BufferedWriter(fileWriter);
-        double number;
-        for(int i = 0; i < count.length; i++) {
-                number = ((double)(i - offset)) / grade;
+        try (FileWriter fileWriter = new FileWriter(outputName);
+             BufferedWriter writer = new BufferedWriter(fileWriter)) {
+            double number;
+            for (int i = 0; i < count.length; i++) {
+                number = ((double) (i - offset)) / grade;
                 String s = String.valueOf(number);
                 for (int j = 0; j < count[i]; j++) {
                     writer.write(s);
                     writer.newLine();
+                }
             }
         }
-        writer.close();
     } // Трудоёмкость O(N), Ресурсоёмкость O(1).
 
     /**
@@ -212,15 +188,16 @@ public class JavaTasks {
      */
     static public void sortSequence(String inputName, String outputName) throws IOException {
         // Сортировка слиянием
-        FileReader read = new FileReader(inputName);
-        BufferedReader buffer = new BufferedReader(read);
-        String str = buffer.readLine();
         List<Integer> in = new ArrayList<>();
-        while (str != null) {
-            int i = Integer.parseInt(str);
-            if (i <= 0) throw new IllegalArgumentException();
-            in.add(i);
-            str = buffer.readLine();
+        try (FileReader read = new FileReader(inputName);
+             BufferedReader buffer = new BufferedReader(read)) {
+            String str = buffer.readLine();
+            while (str != null) {
+                int i = Integer.parseInt(str);
+                if (i <= 0) throw new IllegalArgumentException();
+                in.add(i);
+                str = buffer.readLine();
+            }
         }
         Integer[] worked = new Integer[in.size()];
         for (int i = 0; i < in.size(); i++) {
@@ -247,20 +224,20 @@ public class JavaTasks {
                 }
             }
         }
-        FileWriter fileWriter = new FileWriter(outputName);
-        BufferedWriter writer = new BufferedWriter(fileWriter);
-        for (Integer integer : in) {
-            if (integer != bestN) {
-                writer.write("" + integer);
+        try (FileWriter fileWriter = new FileWriter(outputName);
+             BufferedWriter writer = new BufferedWriter(fileWriter)) {
+            for (Integer integer : in) {
+                if (integer != bestN) {
+                    writer.write("" + integer);
+                    writer.newLine();
+                }
+            }
+            for (int j = 0; j < bCount; j++) {
+                writer.write("" + bestN);
                 writer.newLine();
             }
         }
-        for (int j = 0; j < bCount; j++) {
-            writer.write("" + bestN);
-            writer.newLine();
-        }
-        writer.close();
-    } // Трудоёмкость O(N logN), Ресурсоёмкость O(2N).
+    } // Трудоёмкость O(N logN), Ресурсоёмкость O(N).
 
     private static void mergeSort(Integer[] elements) {
         if (elements == null) return;

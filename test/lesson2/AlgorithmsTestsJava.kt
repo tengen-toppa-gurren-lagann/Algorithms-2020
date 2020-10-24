@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Tag
 import kotlin.test.Test
 
 class AlgorithmsTestsJava : AbstractAlgorithmsTests() {
+
     @Test
     @Tag("2")
     fun testOptimizeBuyAndSellJava() {

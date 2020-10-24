@@ -1,5 +1,6 @@
 package lesson2
 
+import org.junit.jupiter.api.assertThrows
 import java.io.BufferedWriter
 import java.io.File
 import java.util.*
@@ -76,6 +77,10 @@ abstract class AbstractAlgorithmsTests {
     fun longestCommonSubstring(longestCommonSubstring: (String, String) -> String) {
         assertEquals("", longestCommonSubstring("мой мир", "я"))
         assertEquals("зд", longestCommonSubstring("здравствуй мир", "мы здесь"))
+        assertEquals("П", longestCommonSubstring("ПОЛИТЕХ", "Политех"))
+        assertEquals("", longestCommonSubstring("политех", "ПОЛИТЕХ"))
+        assertEquals("Submarine", longestCommonSubstring("YellowSubmarine", "BlueSubmarine"))
+        assertThrows<IllegalArgumentException> { longestCommonSubstring("", "") }
         assertEquals("СЕРВАТОР", longestCommonSubstring("ОБСЕРВАТОРИЯ", "КОНСЕРВАТОРЫ"))
         assertEquals(
             "огда ", longestCommonSubstring(
@@ -113,6 +118,7 @@ abstract class AbstractAlgorithmsTests {
                 """.trimIndent()
             )
         )
+
         assertEquals(
             "(с) Этот весь длинный-длинный текст является цитатой из Пушкина, поэма \"Руслан и Людмила\"",
             longestCommonSubstring(
@@ -124,6 +130,7 @@ abstract class AbstractAlgorithmsTests {
 
     fun calcPrimesNumber(calcPrimesNumber: (Int) -> Int) {
         assertEquals(0, calcPrimesNumber(-1))
+        assertEquals(0, calcPrimesNumber(-10))
         assertEquals(0, calcPrimesNumber(1))
         assertEquals(1, calcPrimesNumber(2))
         assertEquals(2, calcPrimesNumber(4))
