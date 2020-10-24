@@ -42,8 +42,8 @@ public class JavaTasks {
      */
     static public void sortTimes(String inputName, String outputName) throws IOException, ParseException {
         List<Pair<String, Long>> list = new ArrayList<>();
-        try (FileReader read = new FileReader(inputName);
-             BufferedReader buffer = new BufferedReader(read)) {
+        try ( FileReader read = new FileReader(inputName);
+              BufferedReader buffer = new BufferedReader(read) ) {
             String str = buffer.readLine();
             while (str != null) {
                 if (!(str.matches("([0][1-9]|[1][0-2]):[0-5][0-9]:[0-5][0-9]\\s(PM|AM)"))) {
@@ -54,8 +54,8 @@ public class JavaTasks {
             }
         }
         list.sort((a, b) -> (int) (a.getSecond() - b.getSecond()));
-        try (FileWriter fileWriter = new FileWriter(outputName);
-             BufferedWriter writer = new BufferedWriter(fileWriter)) {
+        try ( FileWriter fileWriter = new FileWriter(outputName);
+              BufferedWriter writer = new BufferedWriter(fileWriter) ) {
             for (Pair p : list) {
                 writer.write(p.getFirst().toString());
                 writer.newLine();
@@ -187,57 +187,45 @@ public class JavaTasks {
      * 2
      */
     static public void sortSequence(String inputName, String outputName) throws IOException {
-        // Сортировка слиянием
-        List<Integer> in = new ArrayList<>();
+        List<Long> list = new ArrayList<>();
+        Map<Long, Long> map = new HashMap<>();
+        long bestN = 0;
+        long bCount = 0;
         try (FileReader read = new FileReader(inputName);
              BufferedReader buffer = new BufferedReader(read)) {
             String str = buffer.readLine();
             while (str != null) {
-                int i = Integer.parseInt(str);
+                long i = Long.parseLong(str);
                 if (i <= 0) throw new IllegalArgumentException();
-                in.add(i);
-                str = buffer.readLine();
-            }
-        }
-        Integer[] worked = new Integer[in.size()];
-        for (int i = 0; i < in.size(); i++) {
-            worked[i] = in.get(i);
-        }
-        mergeSort(worked);
-        int bestN = Integer.MAX_VALUE;
-        int bCount = 0;
-        int thisN = Integer.MAX_VALUE;
-        int tCount = 0;
-        for (int value : worked) {
-            if (thisN != value) {
-                tCount = 1;
-                thisN = value;
-            } else {
-                tCount++;
-            }
-            if (tCount > bCount) {
-                bestN = thisN;
-                bCount = tCount;
-            } else {
-                if (tCount == bCount && thisN < bestN) {
-                    bestN = thisN;
+                list.add(i);
+                if (map.containsKey(i)) {
+                    map.put(i, map.get(i) + 1);
+                } else {
+                    map.put(i, 1L);
                 }
+                if (map.get(i) > bCount) {
+                    bestN = i;
+                    bCount = map.get(i);
+                } else if (map.get(i) == bCount && i < bestN) {
+                    bestN = i;
+                }
+                str = buffer.readLine();
             }
         }
         try (FileWriter fileWriter = new FileWriter(outputName);
              BufferedWriter writer = new BufferedWriter(fileWriter)) {
-            for (Integer integer : in) {
-                if (integer != bestN) {
-                    writer.write("" + integer);
+            for (Long i : list) {
+                if (i != bestN) {
+                    writer.write("" + i);
                     writer.newLine();
                 }
             }
-            for (int j = 0; j < bCount; j++) {
+            for (long j = 0; j < bCount; j++) {
                 writer.write("" + bestN);
                 writer.newLine();
             }
         }
-    } // Трудоёмкость O(N logN), Ресурсоёмкость O(N).
+    } // Трудоёмкость O(N), Ресурсоёмкость O(N).
 
     private static void mergeSort(Integer[] elements) {
         if (elements == null) return;
