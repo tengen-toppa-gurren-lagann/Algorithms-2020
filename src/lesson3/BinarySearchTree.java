@@ -166,7 +166,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
                 min.right = node.right;
                 min.left = node.left;
                 if (parent == null) {
-//                    node = min;
+                    node = min;
                     root = node;
                 } else {
                     if (parent.left == node) {
@@ -177,7 +177,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
             else {
                 min.left = node.left;
                 if (parent == null) {
-//                    node = min;
+                    node = min;
                     root = node.right;
                 } else {
                     if (parent.right == node) {
@@ -205,7 +205,8 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     public class BinarySearchTreeIterator implements Iterator<T> {
         private Node<T> current;
         private Node<T> next;
-        boolean canRemove;
+        private boolean canRemove;
+
         private BinarySearchTreeIterator() {
             canRemove = false;
             current = null;
@@ -290,7 +291,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         @Override
         public void remove() {
             if (canRemove) {
-                canRemove = !BinarySearchTree.this.remove(current);
+                canRemove = !BinarySearchTree.this.remove(current.value);
             } else {
                 throw new IllegalStateException();
             }
