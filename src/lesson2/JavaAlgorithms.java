@@ -116,7 +116,7 @@ public class JavaAlgorithms {
         }
         String s = first.substring(bestI - best + 1, bestI + 1);
         return s;
-    } // Трудоемкость ..., ресурсоемкость ...
+    } // Трудоемкость O(M*N), ресурсоемкость O(M*N)
 
     /**
      * Число простых чисел в интервале
@@ -147,5 +147,5 @@ public class JavaAlgorithms {
             }
         }
         return count;
-    } // Трудоемкость ..., ресурсоемкость ...
+    } // Трудоемкость O(N log(logN)), ресурсоемкость O(N)
 }
