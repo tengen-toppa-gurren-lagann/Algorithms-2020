@@ -1,9 +1,11 @@
 package lesson3;
 
-import java.util.*;
 import kotlin.NotImplementedError;
+import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.*;
 
 // attention: Comparable is supported but Comparator is not
 public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> implements CheckableSortedSet<T> {
@@ -55,6 +57,25 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         return closest != null && t.compareTo(closest.value) == 0;
     }
 
+    private Pair<Node<T>, Node<T>> findNodeAndParent(T value) {
+        Node<T> node = root;
+        Node<T> parent = null;
+        while (node != null) {
+            int result = node.value.compareTo(value);
+            if (result > 0) {
+                parent = node;
+                node = node.left;
+            } else if (result < 0) {
+                parent = node;
+                node = node.right;
+            }
+            else {
+                break;
+            }
+        }
+        return new  Pair<>(parent, node);
+    }
+
     /**
      * Добавление элемента в дерево
      *
@@ -80,6 +101,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
             assert closest.left == null;
             closest.left = newNode;
         }
+
         else {
             assert closest.right == null;
             closest.right = newNode;
@@ -101,8 +123,71 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
      */
     @Override
     public boolean remove(Object o) {
-        // TODO
-        throw new NotImplementedError();
+        if (o == null) throw new NullPointerException();
+        if (!contains(o)) return false;
+        @SuppressWarnings("unchecked")
+        T t = (T) o;
+        Pair<Node<T>, Node<T>> pair = findNodeAndParent(t);
+        Node<T> node = pair.getSecond();
+        Node<T> parent = pair.getFirst();
+        if (node.right == null && node.left == null) {
+            if (parent == null) {
+                root = null;
+            } else {
+                if (parent.left == node) parent.left = null;
+                else parent.right = null;
+            }
+        }
+        else if (node.right == null && node.left != null) {
+                if (node == root) {
+                    root = node.left;
+                } else {
+                    if (parent.left == node) parent.left = node.left;
+                    else parent.right = node.left;
+                }
+             }
+             else if (node.left == null && node.right != null) {
+                     if (node == root) {
+                        root = node.right;
+                     } else {
+                        if (parent.right == node) parent.right = node.right;
+                        else parent.left = node.right;
+                     }
+                  }
+        if (node.right != null && node.left != null) {
+            Node<T> min = node.right;
+            Node<T> minParent = node;
+            while (min.left != null) {
+                minParent = min;
+                min = min.left;
+            }
+            if (min == minParent.left) {
+                minParent.left = min.right;
+                min.right = node.right;
+                min.left = node.left;
+                if (parent == null) {
+//                    node = min;
+                    root = node;
+                } else {
+                    if (parent.left == node) {
+                        parent.left = min;
+                    } else parent.right = min;
+                }
+            }
+            else {
+                min.left = node.left;
+                if (parent == null) {
+//                    node = min;
+                    root = node.right;
+                } else {
+                    if (parent.right == node) {
+                        parent.right = min;
+                    } else parent.left = min;
+                }
+            }
+        }
+        size--;
+        return  true;
     }
 
     @Nullable
@@ -118,10 +203,20 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     }
 
     public class BinarySearchTreeIterator implements Iterator<T> {
-
+        private Node<T> current;
+        private Node<T> next;
+        boolean canRemove;
         private BinarySearchTreeIterator() {
-            // Добавьте сюда инициализацию, если она необходима.
+            canRemove = false;
+            current = null;
+            next = root;
+            if (next != null) {
+                while (next.left != null) {
+                    next = next.left;
+                }
+            }
         }
+
 
         /**
          * Проверка наличия следующего элемента
@@ -135,8 +230,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public boolean hasNext() {
-            // TODO
-            throw new NotImplementedError();
+            return (next!=null);
         }
 
         /**
@@ -154,8 +248,31 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public T next() {
-            // TODO
-            throw new NotImplementedError();
+            if (!hasNext()) {
+                throw new IllegalStateException();
+            }
+            current = next;
+            if (next.right != null) {
+                next = next.right;
+                while (next.left != null) {
+                    next = next.left;
+                }
+            } else {
+                while (true) {
+                    Node<T> parent = findNodeAndParent(next.value).getFirst();
+                    if (parent == null) {
+                        next = null;
+                        break;
+                    }
+                    if (next == parent.left) {
+                        next = parent;
+                        break;
+                    }
+                    next = parent;
+                }
+            }
+            canRemove = true;
+            return current.value;
         }
 
         /**
@@ -172,8 +289,11 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public void remove() {
-            // TODO
-            throw new NotImplementedError();
+            if (canRemove) {
+                canRemove = !BinarySearchTree.this.remove(current);
+            } else {
+                throw new IllegalStateException();
+            }
         }
     }
 
