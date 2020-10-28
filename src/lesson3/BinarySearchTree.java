@@ -138,22 +138,23 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
                 else parent.right = null;
             }
         }
-        else if (node.right == null && node.left != null) {
-                if (node == root) {
-                    root = node.left;
+        else if (node.left == null && node.right != null) {
+                if (parent == null) {
+                    root = node.right;
                 } else {
-                    if (parent.left == node) parent.left = node.left;
-                    else parent.right = node.left;
+                    if (parent.right == node) parent.right = node.right;
+                    else parent.left = node.right;
                 }
              }
-             else if (node.left == null && node.right != null) {
-                     if (node == root) {
-                        root = node.right;
-                     } else {
-                        if (parent.right == node) parent.right = node.right;
-                        else parent.left = node.right;
-                     }
-                  }
+             else if (node.right == null && node.left != null) {
+                      if (parent == null) {
+                root = node.left;
+            } else {
+                if (parent.left == node) parent.left = node.left;
+                else parent.right = node.left;
+            }
+        }
+        else
         if (node.right != null && node.left != null) {
             Node<T> min = node.right;
             Node<T> minParent = node;
@@ -166,8 +167,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
                 min.right = node.right;
                 min.left = node.left;
                 if (parent == null) {
-                    node = min;
-                    root = node;
+                    root = min;
                 } else {
                     if (parent.left == node) {
                         parent.left = min;
@@ -177,7 +177,6 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
             else {
                 min.left = node.left;
                 if (parent == null) {
-                    node = min;
                     root = node.right;
                 } else {
                     if (parent.right == node) {
@@ -188,7 +187,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         }
         size--;
         return  true;
-    }
+    } // Трудоемкость О(N), Ресурсоемкость О(1)
 
     @Nullable
     @Override
@@ -232,7 +231,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         @Override
         public boolean hasNext() {
             return (next!=null);
-        }
+        } // Трудоемкость О(1), Ресурсоемкость О(1)
 
         /**
          * Получение следующего элемента
@@ -274,7 +273,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
             }
             canRemove = true;
             return current.value;
-        }
+        } // Трудоемкость О(N), Ресурсоемкость О(1)
 
         /**
          * Удаление предыдущего элемента
@@ -295,7 +294,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
             } else {
                 throw new IllegalStateException();
             }
-        }
+        } // Трудоемкость О(N), Ресурсоемкость О(1)
     }
 
     /**

@@ -4,6 +4,8 @@ import java.util.*
 import kotlin.math.abs
 import kotlin.test.*
 import org.junit.jupiter.api.assertDoesNotThrow
+import org.junit.jupiter.api.assertThrows
+import java.lang.NullPointerException
 import kotlin.IllegalStateException
 import kotlin.NoSuchElementException
 
@@ -107,6 +109,8 @@ abstract class AbstractBinarySearchTreeTest {
     }
 
     protected fun doRemoveTest() {
+        val binarySet0 = create()
+        assertThrows<NullPointerException> { binarySet0.remove(null) }
         implementationTest { create().remove(0) }
         val random = Random()
         for (iteration in 1..100) {
@@ -179,6 +183,13 @@ abstract class AbstractBinarySearchTreeTest {
                 binarySet.iterator().hasNext(),
                 "Iterator of an empty tree should not have any next elements."
             )
+            // Проверяем, что next() == false для последнего элемента
+            binarySet += controlSet.first()
+            val iterator0 = binarySet.iterator()
+            assertTrue(iterator0.hasNext())
+            iterator0.next()
+            assertFalse(iterator0.hasNext())
+            binarySet.clear() // Очищаем для последующих проверок
             for (element in controlSet) {
                 binarySet += element
             }
@@ -223,6 +234,9 @@ abstract class AbstractBinarySearchTreeTest {
             }
             println("Initial set: $controlSet")
             val binarySet = create()
+            // Проверяем выброс исключения при вызове iterator.remove() для пустого дерева
+            val iterator0 = binarySet.iterator()
+            assertThrows<java.lang.IllegalStateException> { iterator0.remove() }
             for (element in controlSet) {
                 binarySet += element
             }
