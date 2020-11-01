@@ -294,6 +294,7 @@ abstract class AbstractBinarySearchTreeTest {
             0, create().subSet(0, 0).size,
             "The subset with the same lower and upper bounds is not empty."
         )
+        assertEquals(0, create().subSet(2, 1).size, "Lower is less than upper");
         val random = Random()
         for (iteration in 1..100) {
             val controlSet = mutableSetOf<Int>()
@@ -388,6 +389,34 @@ abstract class AbstractBinarySearchTreeTest {
                 validElementCounter, subSet.size,
                 "The size of the subset is not as expected."
             )
+            for (i in 1..50) { // Проверка удалений - ДОБАВЛЕНО!
+                val value = random.nextInt(100)
+                if (value in fromElement until toElement) {
+                    if (random.nextBoolean()) {
+                        if (initialSet.remove(value)) {
+                            allElementCounter--
+                            validElementCounter--
+                        }
+                        assertFalse(
+                            subSet.contains(value),
+                            "A subset contains the removed element of the initial set."
+                        )
+                    } else {
+                        if (subSet.remove(value)) {
+                            allElementCounter--
+                            validElementCounter--
+                        }
+                        assertFalse(
+                            initialSet.contains(value),
+                            "The initial set contains the removed element of the initial set."
+                        )
+                    }
+                } else {
+                    assertFailsWith<IllegalArgumentException>("An illegal argument was passed to remove() without raising an exception") {
+                        subSet.remove(value)
+                    }
+                }
+            }
             println("All clear!")
         }
     }
@@ -410,6 +439,22 @@ abstract class AbstractBinarySearchTreeTest {
             edgeCaseSet.subSet(-1, 1).last()
         }
         val random = Random()
+        // Добавим один элемент и проверим, что first() и last() ему равны
+        val controlSet0 = sortedSetOf<Int>()
+        val binarySet0 = create()
+        val intValue = random.nextInt()
+        controlSet0 += intValue
+        binarySet0 += intValue
+        assertEquals(
+            intValue,
+            binarySet0.first(),
+            "The first() method doesn't return the one-and-only element of the subset"
+        )
+        assertEquals(
+            intValue,
+            binarySet0.last(),
+            "The last() method doesn't return the one-and-only element of the subset"
+        )
         for (iteration in 1..100) {
             val controlSet = sortedSetOf<Int>()
             val binarySet = create()
@@ -459,6 +504,34 @@ abstract class AbstractBinarySearchTreeTest {
     protected fun doHeadSetTest() {
         implementationTest { create().headSet(0) }
         val random = Random()
+        // Добавим только один элемент и проверим функции subset для headSet
+        val controlSet0 = mutableSetOf<Int>()
+        val initialSet0 = create()
+        val intValue = random.nextInt()
+        controlSet0 += intValue
+        initialSet0 += intValue
+        val headSet0 = initialSet0.headSet(intValue + 1)
+        assertEquals(
+            intValue,
+            initialSet0.first(),
+            "The first() method of the headSet doesn't return the one-and-only element of the subset"
+        )
+        assertEquals(
+            intValue,
+            initialSet0.last(),
+            "The first() method of the headSet doesn't return the one-and-only element of the subset"
+        )
+        assertEquals(
+            true, headSet0.contains(intValue),
+            "$intValue is not in the headset when it should be."
+        )
+        assertTrue(
+            headSet0.remove(intValue),
+            "An one-and-only element of the headset was not removed."
+        )
+        assertFailsWith<IllegalArgumentException>("An illegal argument was passed to headSet remove() without raising an exception (headSet)") {
+            headSet0.remove(intValue + 1)
+        }
         for (iteration in 1..100) {
             val controlSet = mutableSetOf<Int>()
             val initialSet = create()
@@ -483,17 +556,17 @@ abstract class AbstractBinarySearchTreeTest {
                         "An element of the headset was not removed."
                     )
                 } else {
-                    assertFailsWith<IllegalArgumentException>("An illegal argument was passed to remove() without raising an exception") {
+                    assertFailsWith<IllegalArgumentException>("An illegal argument was passed to remove() without raising an exception (headSet)") {
                         headSet.remove(element)
                     }
                 }
             }
             val validAddition = toElement - 1
-            assertDoesNotThrow("An exception is thrown on the attempt of adding a valid element") {
+            assertDoesNotThrow("An exception is thrown on the attempt of adding a valid element (headSet") {
                 headSet.add(validAddition)
             }
             val invalidAddition = toElement + 1
-            assertFailsWith<IllegalArgumentException>("An illegal argument was passed to add() without raising an exception") {
+            assertFailsWith<IllegalArgumentException>("An illegal argument was passed to add() without raising an exception (headSet)") {
                 headSet.add(invalidAddition)
             }
             println("All clear!")
@@ -542,6 +615,36 @@ abstract class AbstractBinarySearchTreeTest {
                     )
                 }
             }
+
+            for (i in 1..50) { // Проверка удалений - ДОБАВЛЕНО!
+                val value = random.nextInt(100)
+                if (value < toElement) {
+                    if (random.nextBoolean()) {
+                        if (initialSet.remove(value)) {
+                            allElementCounter--
+                            validElementCounter--
+                        }
+                        assertFalse(
+                            headSet.contains(value),
+                            "A headSet contains the removed element of the initial headSet."
+                        )
+                    } else {
+                        if (headSet.remove(value)) {
+                            allElementCounter--
+                            validElementCounter--
+                        }
+                        assertFalse(
+                            initialSet.contains(value),
+                            "The initial subSet contains the removed element of the initial subSet."
+                        )
+                    }
+                } else {
+                    assertFailsWith<IllegalArgumentException>("An illegal argument was passed to remove() without raising an exception") {
+                        headSet.remove(value)
+                    }
+                }
+            }
+
             assertEquals(
                 allElementCounter, initialSet.size,
                 "The size of the initial set is not as expected."
@@ -557,6 +660,34 @@ abstract class AbstractBinarySearchTreeTest {
     protected fun doTailSetTest() {
         implementationTest { create().tailSet(0) }
         val random = Random()
+        // Добавим только один элемент и проверим функции subset для tailSet
+        val controlSet0 = mutableSetOf<Int>()
+        val initialSet0 = create()
+        val intValue = random.nextInt()
+        controlSet0 += intValue
+        initialSet0 += intValue
+        val tailSet0 = initialSet0.tailSet(intValue)
+        assertEquals(
+            intValue,
+            initialSet0.first(),
+            "The first() method of the tailSet doesn't return the one-and-only element of the subset"
+        )
+        assertEquals(
+            intValue,
+            initialSet0.last(),
+            "The first() method of the tailSet doesn't return the one-and-only element of the subset"
+        )
+        assertEquals(
+            true, tailSet0.contains(intValue),
+            "$intValue is not in the tailSet when it should be."
+        )
+        assertTrue(
+            tailSet0.remove(intValue),
+            "An one-and-only element of the tailSet was not removed."
+        )
+        assertFailsWith<IllegalArgumentException>("An illegal argument was passed to tailSet remove() without raising an exception") {
+            tailSet0.remove(intValue-1)
+        }
         for (iteration in 1..100) {
             val controlSet = mutableSetOf<Int>()
             val initialSet = create()
@@ -591,7 +722,7 @@ abstract class AbstractBinarySearchTreeTest {
                 tailSet.add(validAddition)
             }
             val invalidAddition = fromElement - 1
-            assertFailsWith<IllegalArgumentException>("An illegal argument was passed to add() without raising an exception") {
+            assertFailsWith<IllegalArgumentException>("An illegal argument was passed to add() without raising an exception (tailSet)") {
                 tailSet.add(invalidAddition)
             }
             println("All clear!")
@@ -605,7 +736,7 @@ abstract class AbstractBinarySearchTreeTest {
             val initialSet = create()
             val fromElement = random.nextInt(100)
             val tailSet = initialSet.tailSet(fromElement)
-            println("Checking if the tailset from $fromElement is a valid view of the initial set...")
+            println("Checking if the tailSet from $fromElement is a valid view of the initial set...")
             var allElementCounter = 0
             var validElementCounter = 0
             for (i in 1..50) {
@@ -618,7 +749,7 @@ abstract class AbstractBinarySearchTreeTest {
                         }
                         assertTrue(
                             tailSet.contains(value),
-                            "A tailset doesn't contain a valid element of the initial set."
+                            "A tailSet doesn't contain a valid element of the initial set."
                         )
                     } else {
                         if (tailSet.add(value)) {
@@ -627,7 +758,7 @@ abstract class AbstractBinarySearchTreeTest {
                         }
                         assertTrue(
                             initialSet.contains(value),
-                            "The initial set doesn't contain an element of the tailset."
+                            "The initial set doesn't contain an element of the tailSet."
                         )
                     }
                 } else {
@@ -636,10 +767,40 @@ abstract class AbstractBinarySearchTreeTest {
                     }
                     assertFalse(
                         tailSet.contains(value),
-                        "A tailset contains an illegal element of the initial set."
+                        "A tailSet contains an illegal element of the initial set."
                     )
                 }
             }
+
+            for (i in 1..50) { // Проверка удалений - ДОБАВЛЕНО!
+                val value = random.nextInt(100)
+                if (value >= fromElement) {
+                    if (random.nextBoolean()) {
+                        if (initialSet.remove(value)) {
+                            allElementCounter--
+                            validElementCounter--
+                        }
+                        assertFalse(
+                            tailSet.contains(value),
+                            "A tailSet contains the removed element of the initial tailSet."
+                        )
+                    } else {
+                        if (tailSet.remove(value)) {
+                            allElementCounter--
+                            validElementCounter--
+                        }
+                        assertFalse(
+                            initialSet.contains(value),
+                            "The initial tailSet contains the removed element of the initial tailSet."
+                        )
+                    }
+                } else {
+                    assertFailsWith<IllegalArgumentException>("An illegal argument was passed to remove() without raising an exception (tailSet)") {
+                        tailSet.remove(value)
+                    }
+                }
+            }
+
             assertEquals(
                 allElementCounter, initialSet.size,
                 "The size of the initial set is not as expected."

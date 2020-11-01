@@ -296,6 +296,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         } // Трудоемкость О(N), Ресурсоемкость О(1)
     }
 
+    // Класс, реализующий подмножество элементов BinarySearchTree в заданном диапазоне
     public class BSTSubset extends TreeSet<T> implements SortedSet<T> {
         BinarySearchTree<T> tree;
         T minValue;
@@ -411,7 +412,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     @Override
     public SortedSet<T> subSet(T fromElement, T toElement) {
         return new BSTSubset(this, fromElement, toElement);
-    }
+    } // Трудоемкость О(1), Ресурсоемкость О(1)
 
     /**
      * Подмножество всех элементов строго меньше заданного
@@ -431,7 +432,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     @Override
     public SortedSet<T> headSet(T toElement) {
         return new BSTSubset(this, null, toElement);
-    }
+    } // Трудоемкость О(1), Ресурсоемкость О(1)
 
     /**
      * Подмножество всех элементов нестрого больше заданного
@@ -451,7 +452,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     @Override
     public SortedSet<T> tailSet(T fromElement) {
         return new BSTSubset(this, fromElement, null);
-    }
+    } // Трудоемкость О(1), Ресурсоемкость О(1)
 
     @Override
     public T first() {
