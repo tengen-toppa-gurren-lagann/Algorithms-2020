@@ -1,6 +1,5 @@
 package lesson3;
 
-import kotlin.NotImplementedError;
 import kotlin.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -230,7 +229,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
          */
         @Override
         public boolean hasNext() {
-            return (next!=null);
+            return (next != null);
         } // Трудоемкость О(1), Ресурсоемкость О(1)
 
         /**
@@ -251,6 +250,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
             if (!hasNext()) {
                 throw new IllegalStateException();
             }
+            canRemove = true;
             current = next;
             if (next.right != null) {
                 next = next.right;
@@ -264,14 +264,13 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
                         next = null;
                         break;
                     }
-                    if (next == parent.left) {
-                        next = parent;
-                        break;
-                    }
-                    next = parent;
+                    else if (next == parent.left) {
+                            next = parent;
+                            break;
+                         }
+                         else next = parent;
                 }
             }
-            canRemove = true;
             return current.value;
         } // Трудоемкость О(N), Ресурсоемкость О(1)
 
@@ -297,6 +296,101 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
         } // Трудоемкость О(N), Ресурсоемкость О(1)
     }
 
+    public class BSTSubset extends TreeSet<T> implements SortedSet<T> {
+        BinarySearchTree<T> tree;
+        T minValue;
+        T maxValue;
+
+        public BSTSubset(BinarySearchTree<T> bst, T min, T max) {
+            tree = bst;
+            minValue = min;
+            maxValue = max;
+        }
+
+        @Override
+        public int size() {
+            int result = 0;
+            Iterator<T> iterator = tree.iterator();
+            while (iterator.hasNext()) {
+                T value = iterator.next();
+                if (isValid(value)) result++;
+            }
+            return result;
+        }
+
+        public boolean isValid(T value) {
+            boolean result = false;
+            if (minValue != null && maxValue != null) {
+                result = value.compareTo(minValue) >= 0 && value.compareTo(maxValue) < 0;
+            }
+            if (minValue == null) {
+                result = value.compareTo(maxValue) < 0;
+            }
+            if (maxValue == null) {
+                result = value.compareTo(minValue) >= 0;
+            }
+            return result;
+        }
+
+        @Override
+        public T first() {
+            if (size() == 0) throw new NoSuchElementException();
+            T result = null;
+            T next;
+            Iterator<T> iterator = tree.iterator();
+            while (iterator.hasNext()) {
+                next = iterator.next();
+                if (next.compareTo(minValue) >= 0) {
+                    result = next;
+                    break;
+                }
+            }
+            return result;
+        }
+
+        @Override
+        public T last() {
+            if (size() == 0) throw new NoSuchElementException();
+            T result = null;
+            T next;
+            T cur = first();
+            Iterator<T> iterator = tree.iterator();
+            while (iterator.hasNext()) {
+                next = iterator.next();
+                if (next.compareTo(maxValue) >= 0) {
+                    result = cur;
+                    break;
+                } else result = next;
+                cur = next;
+            }
+            return result;
+        }
+
+        @Override
+        public boolean contains(Object o) {
+            @SuppressWarnings("unchecked")
+            T t = (T)o;
+            if (isValid(t)) return tree.contains(o);
+            else return false;
+        }
+
+        @Override
+        public boolean add(T t) {
+            if (isValid(t)) return tree.add(t);
+            else throw new IllegalArgumentException();
+        }
+
+        @Override
+        public boolean remove(Object o) {
+            @SuppressWarnings("unchecked")
+            T t = (T)o;
+            if (isValid(t)) {
+                return tree.remove(o);
+            }
+            else throw new IllegalArgumentException();
+        }
+    }
+
     /**
      * Подмножество всех элементов в диапазоне [fromElement, toElement)
      *
@@ -316,8 +410,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     @NotNull
     @Override
     public SortedSet<T> subSet(T fromElement, T toElement) {
-        // TODO
-        throw new NotImplementedError();
+        return new BSTSubset(this, fromElement, toElement);
     }
 
     /**
@@ -337,8 +430,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     @NotNull
     @Override
     public SortedSet<T> headSet(T toElement) {
-        // TODO
-        throw new NotImplementedError();
+        return new BSTSubset(this, null, toElement);
     }
 
     /**
@@ -358,8 +450,7 @@ public class BinarySearchTree<T extends Comparable<T>> extends AbstractSet<T> im
     @NotNull
     @Override
     public SortedSet<T> tailSet(T fromElement) {
-        // TODO
-        throw new NotImplementedError();
+        return new BSTSubset(this, fromElement, null);
     }
 
     @Override
