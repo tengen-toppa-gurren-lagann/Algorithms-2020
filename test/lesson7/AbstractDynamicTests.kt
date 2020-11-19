@@ -9,6 +9,15 @@ abstract class AbstractDynamicTests {
         assertEquals("13", longestCommonSubSequence("123", "13"))
         assertEquals("здс", longestCommonSubSequence("здравствуй мир", "мы здесь"))
         assertEquals("emt ole", longestCommonSubSequence("nematode knowledge", "empty bottle"))
+        assertEquals("", longestCommonSubSequence("", ""))
+        assertEquals("", longestCommonSubSequence("ДЖАВА", "джава"))
+        assertEquals(
+            "Съешь ещё этих мягких французских булок да выпей чаю",
+            longestCommonSubSequence(
+                "Съешь ещё этих мягких французских булок да выпей чаю",
+                "Съешь ещё этих мягких французских булок да выпей чаю"
+            )
+        )
         val expectedLength = "e kerwelkkd r".length
         assertEquals(
             expectedLength, longestCommonSubSequence(
@@ -42,6 +51,8 @@ abstract class AbstractDynamicTests {
         assertEquals(listOf(1), longestIncreasingSubSequence(listOf(1)))
         assertEquals(listOf(1, 2), longestIncreasingSubSequence(listOf(1, 2)))
         assertEquals(listOf(2), longestIncreasingSubSequence(listOf(2, 1)))
+        assertEquals(listOf(-2, -1), longestIncreasingSubSequence(listOf(6, 1, -2, -1)))
+        assertEquals(listOf(9), longestIncreasingSubSequence(listOf(9, 8, 7, 6, 5, 4, 3, 2, 1)))
         assertEquals(
             listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
             longestIncreasingSubSequence(listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10))
