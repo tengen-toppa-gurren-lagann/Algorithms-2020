@@ -118,7 +118,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
                 needNext = false;
             }
             return next != null;
-        }
+        } // Трудоёмкость O(N), где N - количество узлов, Ресурсоёмкость O(1)
 
         @Override
         public String next() {
@@ -126,7 +126,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
             removable = true;
             needNext = true;
             return next;
-        }
+        } // Трудоёмкость O(N), где N - количество узлов, Ресурсоёмкость O(1)
 
         @Override
         public void remove() {
@@ -136,7 +136,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
             childrenIterator.remove();
             size--;
             removable = false;
-        }
+        } // Трудоёмкость O(1), Ресурсоёмкость O(1)
 
         private String nextWord() {
             String word = null;
@@ -164,7 +164,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
             }
         }
             return word;
-        }
+        } // Трудоёмкость O(N), где N - количество узлов, Ресурсоёмкость O(1)
     }
 
 }
