@@ -1,5 +1,6 @@
 package lesson4
 
+import org.junit.jupiter.api.assertThrows
 import java.util.*
 import kotlin.math.abs
 import ru.spbstu.kotlin.generate.util.nextString
@@ -95,6 +96,9 @@ abstract class AbstractTrieTest {
                     "Calling TrieIterator.hasNext() changes the state of the iterator."
                 )
             }
+            for (i in 1..5) {
+                assertTrue { iterator1.hasNext() == iterator1.hasNext() } // Проверка, что последовательный вызов hasNext() возвращает один и тот же результат
+            }
             val trieIter = trieSet.iterator()
             println("Checking if the iterator traverses the entire set...")
             while (trieIter.hasNext()) {
@@ -168,6 +172,13 @@ abstract class AbstractTrieTest {
                     "Trie set has the element $element that is not in control set."
                 )
             }
+            val iterator1 = trieSet.iterator()
+            if (iterator1.hasNext()) assertThrows<IllegalStateException> { iterator1.remove() }
+            while (iterator1.hasNext()) {
+                iterator1.next()
+                iterator1.remove()
+            }
+            assertFalse { iterator1.hasNext() }
             println("All clear!")
         }
     }

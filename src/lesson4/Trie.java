@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Префиксное дерево для строк
@@ -97,25 +96,27 @@ public class Trie extends AbstractSet<String> implements Set<String> {
     }
 
     public class TrieIterator implements Iterator<String> {
-        private String current;
         private String next;
-        private StringBuilder charBuffer;
+        private final StringBuilder charBuffer;
         private boolean removable;
+        private boolean needNext;
         Stack<Iterator<Map.Entry<Character, Node>>> stack; // Стек итераторов детей
-        Set<ConcurrentHashMap.Entry<Character, Node>> childrenSet; // Concurrent из-за ConcurrentModificationException
 
         private TrieIterator() {
-            childrenSet = new HashSet<>(root.children.entrySet()); // Начинаем проход с детей корня
             stack = new Stack<>();
-            stack.push(childrenSet.iterator());
+            stack.push(root.children.entrySet().iterator());
             charBuffer = new StringBuilder();
             removable = false;
-            current = null;
-            next = nextWord();
+            needNext = true;
+            next = null;
         }
 
         @Override
         public boolean hasNext() {
+            if (needNext) {
+                next = nextWord();
+                needNext = false;
+            }
             return next != null;
         }
 
@@ -123,16 +124,18 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         public String next() {
             if (!hasNext()) throw new IllegalStateException();
             removable = true;
-            current = next;
-            next = nextWord();
-            return current;
+            needNext = true;
+            return next;
         }
 
         @Override
         public void remove() {
             if (!removable) throw new IllegalStateException();
-            boolean removed = Trie.this.remove(current);
-            removable = !removed;
+            Iterator<Map.Entry<Character, Node>> childrenIterator;
+            childrenIterator = stack.peek();
+            childrenIterator.remove();
+            size--;
+            removable = false;
         }
 
         private String nextWord() {
@@ -152,8 +155,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
                 Map.Entry<Character, Node> entry = childrenIterator.next();
                 if (entry.getKey() != (char) 0) {
                     charBuffer.append(entry.getKey());
-                    childrenSet = new HashSet<>(entry.getValue().children.entrySet()); // Рассматриваем детей узла
-                    childrenIterator = childrenSet.iterator();
+                    childrenIterator = entry.getValue().children.entrySet().iterator();// Рассматриваем детей узла
                     stack.push(childrenIterator); // Помещаем в стек итератор следующего элемента
                 } else { // Собрали слово
                     word = charBuffer.toString();
