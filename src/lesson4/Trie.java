@@ -133,7 +133,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
             if (!removable) throw new IllegalStateException();
             Iterator<Map.Entry<Character, Node>> childrenIterator;
             childrenIterator = stack.peek();
-            childrenIterator.remove();
+            childrenIterator.remove(); // При итерации по коллекции удаляем только через итератор!
             size--;
             removable = false;
         } // Трудоёмкость O(1), Ресурсоёмкость O(1)
