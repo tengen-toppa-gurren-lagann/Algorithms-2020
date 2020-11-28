@@ -100,7 +100,7 @@ public class Trie extends AbstractSet<String> implements Set<String> {
         private final StringBuilder charBuffer;
         private boolean removable;
         private boolean needNext;
-        Stack<Iterator<Map.Entry<Character, Node>>> stack; // Стек итераторов детей
+        private final Stack<Iterator<Map.Entry<Character, Node>>> stack; // Стек итераторов детей
 
         private TrieIterator() {
             stack = new Stack<>();
@@ -151,18 +151,18 @@ public class Trie extends AbstractSet<String> implements Set<String> {
                     if (childrenIterator == null) throw new IllegalStateException();
                 }
 
-            while (childrenIterator.hasNext()) { // Пока дети есть, собираем строку до тех пор, пока не встретим 0
-                Map.Entry<Character, Node> entry = childrenIterator.next();
-                if (entry.getKey() != (char) 0) {
-                    charBuffer.append(entry.getKey());
-                    childrenIterator = entry.getValue().children.entrySet().iterator();// Рассматриваем детей узла
-                    stack.push(childrenIterator); // Помещаем в стек итератор следующего элемента
-                } else { // Собрали слово
-                    word = charBuffer.toString();
-                    break;
+                while (childrenIterator.hasNext()) { // Пока дети есть, собираем строку до тех пор, пока не встретим 0
+                    Map.Entry<Character, Node> entry = childrenIterator.next();
+                    if (entry.getKey() != (char) 0) {
+                        charBuffer.append(entry.getKey());
+                        childrenIterator = entry.getValue().children.entrySet().iterator();// Рассматриваем детей узла
+                        stack.push(childrenIterator); // Помещаем в стек итератор следующего элемента
+                    } else { // Собрали слово
+                        word = charBuffer.toString();
+                        break;
+                    }
                 }
             }
-        }
             return word;
         } // Трудоёмкость O(N), где N - количество узлов, Ресурсоёмкость O(1)
     }
