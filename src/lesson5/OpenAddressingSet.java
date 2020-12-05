@@ -20,7 +20,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         return element.hashCode() & (0x7FFFFFFF >> (31 - bits));
     }
 
-    private class Removed { }
+    private static class Removed { }
 
     public OpenAddressingSet(int bits) {
         if (bits < 2 || bits > 31) {
