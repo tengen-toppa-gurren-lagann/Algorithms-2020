@@ -1,6 +1,5 @@
 package lesson5;
 
-import kotlin.NotImplementedError;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.AbstractSet;
@@ -20,6 +19,8 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
     private int startingIndex(Object element) {
         return element.hashCode() & (0x7FFFFFFF >> (31 - bits));
     }
+
+    private class Removed { }
 
     public OpenAddressingSet(int bits) {
         if (bits < 2 || bits > 31) {
@@ -67,7 +68,7 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
         int startingIndex = startingIndex(t);
         int index = startingIndex;
         Object current = storage[index];
-        while (current != null) {
+        while (current != null && current.getClass() != Removed.class) { // Добавляем не только в пустые ячейки, но и в те, из которых удаляли
             if (current.equals(t)) {
                 return false;
             }
@@ -95,8 +96,21 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      */
     @Override
     public boolean remove(Object o) {
-        return super.remove(o);
-    }
+        int startingIndex = startingIndex(o);
+        int index = startingIndex;
+        Object current = storage[index];
+        while (current != null) {
+            if (current.equals(o)) {
+                size--;
+                storage[index] = new Removed();
+                return true;
+            }
+            index = (index + 1) % capacity;
+            if (index == startingIndex) return false;
+            current = storage[index];
+        }
+        return false;
+    } // Трудоёмкость O(N), Ресурсоёмкость O(1)
 
     /**
      * Создание итератора для обхода таблицы
@@ -110,8 +124,43 @@ public class OpenAddressingSet<T> extends AbstractSet<T> {
      */
     @NotNull
     @Override
-    public Iterator<T> iterator() {
-        // TODO
-        throw new NotImplementedError();
+    public Iterator<T> iterator() { return new OpenAddressingSetIterator(); }
+    public class OpenAddressingSetIterator implements Iterator<T> {
+        private int currentIndex;
+        private int nextIndex;
+
+        private OpenAddressingSetIterator() {
+            currentIndex = -1;
+            nextElem();
+        }
+
+        private void nextElem() {
+            while (nextIndex != capacity && (storage[nextIndex] == null || storage[nextIndex].getClass() == Removed.class)) {
+                nextIndex++;
+            }
+        } // Трудоёмкость O(N), Ресурсоёмкость O(1)
+
+        @Override
+        public boolean hasNext() { return (nextIndex != capacity);
+        } // ТРудоёмкость O(1), Ресурсоёмкость O(1)
+
+        @Override
+        @SuppressWarnings("unchecked")
+        public T next() {
+            if (!hasNext()) throw new IllegalStateException();
+            currentIndex = nextIndex;
+            nextIndex++;
+            nextElem();
+            return (T) storage[currentIndex];
+        } // Трудоёмкость O(N), Ресурсоёмкость O(1)
+
+        @Override
+        public void remove() {
+            if (currentIndex == -1) throw new IllegalStateException();
+            storage[currentIndex] = new Removed(); // Делаем метку, что элемент был удалён
+            currentIndex = -1; // Текущий элемент удалён, не на что указывать
+            size--;
+        } // Трудоёмкость O(1), Ресурсоёмкость O(1)
+
     }
 }

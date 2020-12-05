@@ -1,6 +1,8 @@
 package lesson5
 
+import org.junit.jupiter.api.assertThrows
 import ru.spbstu.kotlin.generate.util.nextString
+import java.lang.NullPointerException
 import java.util.*
 import kotlin.math.abs
 import kotlin.test.assertEquals
@@ -44,6 +46,9 @@ abstract class AbstractOpenAddressingSetTest {
         for (iteration in 1..100) {
             val bitsNumber = random.nextInt(4) + 6
             val openAddressingSet = create<Int>(bitsNumber)
+            assertThrows<NullPointerException> { openAddressingSet.remove(null) } //
+            val rand = random.nextInt(32)
+            assertFalse { openAddressingSet.remove(rand) } //
             for (i in 1..50) {
                 val firstInt = random.nextInt(32)
                 val secondInt = firstInt + (1 shl bitsNumber)
@@ -92,6 +97,14 @@ abstract class AbstractOpenAddressingSetTest {
                 openAddressingSet.iterator().hasNext(),
                 "Iterator of an empty set should not have any next elements."
             )
+            // Проверяем, что next() == false для последнего элемента
+            openAddressingSet += controlSet.first()
+            val iterator0 = openAddressingSet.iterator()
+            assertTrue(iterator0.hasNext())
+            iterator0.next()
+            assertFalse(iterator0.hasNext())
+            assertThrows<java.lang.IllegalStateException> { iterator0.next() }
+            openAddressingSet.clear() // Очищаем для последующих проверок
             for (element in controlSet) {
                 openAddressingSet += element
             }
@@ -103,6 +116,9 @@ abstract class AbstractOpenAddressingSetTest {
                     iterator2.next(), iterator1.next(),
                     "Calling OpenAddressingSetIterator.hasNext() changes the state of the iterator."
                 )
+            }
+            for (i in 1..5) {
+                assertTrue { iterator1.hasNext() == iterator1.hasNext() } // Проверка, что последовательный вызов hasNext() возвращает один и тот же результат
             }
             val openAddressingSetIter = openAddressingSet.iterator()
             println("Checking if the iterator traverses the entire set...")
@@ -124,6 +140,9 @@ abstract class AbstractOpenAddressingSetTest {
         val random = Random()
         for (iteration in 1..100) {
             val controlSet = mutableSetOf<String>()
+            // Проверяем выброс исключения при вызове iterator.remove() для пустого множества
+            val iterator0 = controlSet.iterator()
+            assertThrows<java.lang.IllegalStateException> { iterator0.remove() }
             val removeIndex = random.nextInt(15) + 1
             var toRemove = ""
             for (i in 1..15) {
@@ -151,6 +170,9 @@ abstract class AbstractOpenAddressingSetTest {
                 counter--
                 if (element == toRemove) {
                     iterator.remove()
+                    assertFailsWith<IllegalStateException>("iterator.remove() was successfully called twice in a row.") { //
+                        iterator.remove()
+                    }
                 }
             }
             assertEquals(
